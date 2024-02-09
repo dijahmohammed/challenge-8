@@ -30,31 +30,64 @@ $(document).ready(function() {
     }
   
     function displayWeather(response) {
-      todayCard.empty();
-      fiveDayForecast.empty();
-  
-      var cityName = response.name;
-      var date = dayjs().format('MMMM DD, YYYY');
-      var iconCode = response.weather[0].icon;
-      var temperature = (response.main.temp - 273.15).toFixed(2); // Convert temperature from Kelvin to Celsius
-      var windSpeed = response.wind.speed;
-      var humidity = response.main.humidity;
-  
-      var todayDiv = $('<div>').attr('class', 'card today-card p-4');
-      var cityNameAndDate = $('<h2>').text(cityName + " (" + date + ")");
-      var todayIcon = $('<img>').attr({
-        src: "https://openweathermap.org/img/w/" + iconCode + ".png",
-        height: "50px",
-        width: "50px"
-      });
-      var todaysTemp = $('<p>').text("Temperature: " + temperature + " °C");
-      var todayWind = $('<p>').text("Wind Speed: " + windSpeed + " m/s");
-      var todayHumidity = $('<p>').text("Humidity: " + humidity + "%");
-  
-      todayCard.append(todayDiv);
-      todayDiv.append(cityNameAndDate, todayIcon, todaysTemp, todayWind, todayHumidity);
+        todayCard.empty();
+        fiveDayForecast.empty();
+    
+        // Display today's weather
+        var cityName = response.name;
+        var date = dayjs().format('MMMM DD, YYYY');
+        var iconCode = response.weather[0].icon;
+        var temperature = (response.main.temp - 273.15).toFixed(2); // Convert temperature from Kelvin to Celsius
+        var windSpeed = response.wind.speed;
+        var humidity = response.main.humidity;
+    
+        var todayDiv = $('<div>').attr('class', 'card today-card p-4');
+        var cityNameAndDate = $('<h2>').text(cityName + " (" + date + ")");
+        var todayIcon = $('<img>').attr({
+          src: "https://openweathermap.org/img/w/" + iconCode + ".png",
+          height: "50px",
+          width: "50px"
+        });
+        var todaysTemp = $('<p>').text("Temperature: " + temperature + " °C");
+        var todayWind = $('<p>').text("Wind Speed: " + windSpeed + " m/s");
+        var todayHumidity = $('<p>').text("Humidity: " + humidity + "%");
+    
+        todayCard.append(todayDiv);
+        todayDiv.append(cityNameAndDate, todayIcon, todaysTemp, todayWind, todayHumidity);
+    
+        // Display five-day forecast
+        var forecastQueryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + APIkey;
+        $.ajax({
+          url: forecastQueryURL,
+          method: "GET"
+        }).then(function(response) {
+          for (var i = 0; i < response.list.length; i += 8) {
+            var forecast = response.list[i];
+            var forecastDate = dayjs(forecast.dt_txt).format('MMMM DD, YYYY');
+            var forecastIconCode = forecast.weather[0].icon;
+            var forecastTemperature = (forecast.main.temp - 273.15).toFixed(2);
+            var forecastWindSpeed = forecast.wind.speed;
+            var forecastHumidity = forecast.main.humidity;
+    
+            var forecastDiv = $('<div>').attr('class', 'card forecast-card m-3');
+            var forecastDateElem = $('<h5>').text(forecastDate);
+            var forecastIcon = $('<img>').attr({
+              src: "https://openweathermap.org/img/w/" + forecastIconCode + ".png",
+              height: "50px",
+              width: "50px"
+            });
+            var forecastTempElem = $('<p>').text("Temperature: " + forecastTemperature + " °C");
+            var forecastWindElem = $('<p>').text("Wind Speed: " + forecastWindSpeed + " m/s");
+            var forecastHumidityElem = $('<p>').text("Humidity: " + forecastHumidity + "%");
+    
+            fiveDayForecast.append(forecastDiv);
+            forecastDiv.append(forecastDateElem, forecastIcon, forecastTempElem, forecastWindElem, forecastHumidityElem);
+          }
+        });
     }
-  });
+    
+    }
+  );
   
   
       // Display five-day forecast
